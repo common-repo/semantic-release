@@ -1,0 +1,24 @@
+# Consumer config: inherit shared dev tooling from cr-upstream-repo
+- self:
+    - repo:
+        url: https://github.com/common-repo/cr-upstream-repo
+        ref: v1
+    - exclude:
+        - ".releaserc.yaml"
+        - "commitlint.config.cjs"
+        - ".github/workflows/release.yaml"
+        - ".github/workflows/commitlint.yml"
+
+# Source-level config: only expose src/ contents, renamed to root.
+- include:
+    - "src/**"
+    - "src/.*"
+    - "src/.*/**"
+- template:
+    - "src/.github/workflows/release.yaml"
+- template-vars:
+    GH_APP_ID_VAR: CHRISTMAS_ISLAND_APP_ID
+    GH_APP_KEY_SECRET: CHRISTMAS_ISLAND_PRIVATE_KEY
+    GH_APP_OWNER: christmas-island
+- rename:
+    - "^src/(.*)$": "$1"

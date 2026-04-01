@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  ci:
+    name: CI
+    permissions:
+      contents: write
+    uses: ./.github/workflows/ci.yaml
+    secrets: inherit
+
+  release:
+    name: Release
+    needs: ci
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.CHRISTMAS_ISLAND_APP_ID }}
+          private-key: ${{ secrets.CHRISTMAS_ISLAND_PRIVATE_KEY }}
+          owner: christmas-island
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: true
+
+      - name: Cocogitto Release
+        id: release
+        uses: cocogitto/cocogitto-action@v4
+        with:
+          command: bump
+          args: --auto
+          git-user: 'cog-bot'
+          git-user-email: 'cog-bot@users.noreply.github.com'
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Generate changelog
+        if: steps.release.outputs.version != ''
+        id: changelog
+        uses: cocogitto/cocogitto-action@v4
+        with:
+          command: changelog
+          args: --at v${{ steps.release.outputs.version }}
+
+      - name: Update major version tag
+        if: steps.release.outputs.version != ''
+        run: |
+          VERSION="${{ steps.release.outputs.version }}"
+          MAJOR="v${VERSION%%.*}"
+          git tag -f "$MAJOR"
+          git push origin "$MAJOR" --force
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Create GitHub release
+        if: steps.release.outputs.version != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.release.outputs.version }}
+          body: ${{ steps.changelog.outputs.stdout }}
+          token: ${{ steps.app-token.outputs.token }}
+
+    outputs:
+      publish: ${{ steps.release.outputs.version != '' }}

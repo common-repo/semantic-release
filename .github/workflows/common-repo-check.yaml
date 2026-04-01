@@ -1,0 +1,25 @@
+name: common-repo check
+
+on:
+  schedule:
+    # Run daily at 08:00 UTC
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Check for upstream updates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: common-repo/setup-common-repo@v1
+
+      - name: Check for updates
+        run: common-repo check --updates
+
+      - name: Show diff
+        run: |
+          common-repo diff --summary || true
+          echo "---"
+          common-repo diff || true

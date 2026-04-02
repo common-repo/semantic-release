@@ -15,17 +15,17 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - uses: j178/prek-action@v2
+      - uses: j178/prek-action@53276d8b0d10f8b6672aa85b4588c6921d0370cc # v2
 
   test:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - uses: common-repo/setup-common-repo@v1
+      - uses: common-repo/setup-common-repo@887d2b31e6678fb650d1b1b6fb6097afa5528310 # v1
 
       - name: Validate configuration
         run: common-repo validate

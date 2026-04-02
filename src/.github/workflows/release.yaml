@@ -26,13 +26,13 @@ jobs:
     steps:
       - name: Generate app token
         id: app-token
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3
         with:
           app-id: ${{ vars.__COMMON_REPO__GH_APP_ID_VAR__ }}
           private-key: ${{ secrets.__COMMON_REPO__GH_APP_KEY_SECRET__ }}
           owner: __COMMON_REPO__GH_APP_OWNER__
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
@@ -40,7 +40,7 @@ jobs:
 
       - name: Cocogitto Release
         id: release
-        uses: cocogitto/cocogitto-action@v4
+        uses: cocogitto/cocogitto-action@390bda87a19bf627e03ad075c67a11e9ddbb7547 # v4
         with:
           command: bump
           args: --auto
@@ -53,7 +53,7 @@ jobs:
       - name: Generate changelog
         if: steps.release.outputs.version != ''
         id: changelog
-        uses: cocogitto/cocogitto-action@v4
+        uses: cocogitto/cocogitto-action@390bda87a19bf627e03ad075c67a11e9ddbb7547 # v4
         with:
           command: changelog
           args: --at v${{ steps.release.outputs.version }}
@@ -70,7 +70,7 @@ jobs:
 
       - name: Create GitHub release
         if: steps.release.outputs.version != ''
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2
         with:
           tag_name: v${{ steps.release.outputs.version }}
           body: ${{ steps.changelog.outputs.stdout }}

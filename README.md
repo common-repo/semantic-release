@@ -23,7 +23,7 @@ Files distributed from `src/`:
 # .common-repo.yaml
 - repo:
     url: https://github.com/common-repo/semantic-release
-    ref: v1.1.0
+    ref: v0.2.0
 ```
 
 That's it. The source repo's `.common-repo.yaml` handles scoping to `src/` and stripping the prefix.

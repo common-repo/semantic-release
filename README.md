@@ -1,4 +1,4 @@
-# cr-semantic-release
+# semantic-release
 
 A [common-repo](https://github.com/common-repo/common-repo) source template for conventional commits and semantic releases.
 
@@ -22,7 +22,7 @@ Files distributed from `src/`:
 ```yaml
 # .common-repo.yaml
 - repo:
-    url: https://github.com/christmas-island/cr-semantic-release
+    url: https://github.com/common-repo/semantic-release
     ref: v1.1.0
 ```
 
@@ -35,53 +35,43 @@ cr diff    # preview changes
 cr apply   # apply
 ```
 
-## Repo Structure
+## Distributed Files
+
+After applying, your repo will receive:
 
 ```
-cr-semantic-release/
-├── .common-repo.yaml      ← source-declared filtering (include src/, rename to root)
-├── .github/workflows/     ← this repo's own CI (dogfooding)
-│   ├── ci.yaml            ← sync check: top-level == src/
-│   ├── commitlint.yml     ← commit linting for this repo
-│   └── release.yaml       ← semantic release for this repo
-├── .releaserc.yaml        ← this repo's own release config
-├── commitlint.config.js   ← this repo's own commitlint
-├── README.md
-├── LICENSE
-└── src/                   ← distributed to consumers
-    ├── .github/workflows/
-    │   ├── commitlint.yml
-    │   └── release.yaml
-    ├── .releaserc.yaml
-    └── commitlint.config.js
+.github/workflows/
+├── commitlint.yml     ← PR commit lint (wagoid/commitlint-github-action)
+└── release.yaml       ← semantic release on push to main (GitHub App token)
+.releaserc.yaml        ← semantic-release config (conventionalcommits, changelog, GitHub release, major-tag)
+commitlint.config.js   ← commitlint config (@commitlint/config-conventional)
 ```
 
-The top-level files and `src/` files are identical — the repo eats its own dog food. CI enforces they stay in sync (except `release.yaml`, which uses template variables in `src/` and hardcoded defaults at the top level).
+`release.yaml` is a template — its GitHub App credentials are substituted from `template-vars` at apply time.
 
-## Prerequisites
+## Template Variables
 
-By default, the release workflow uses these GitHub org-level vars and secrets:
+The release workflow is a template with three variables:
 
-| Name | Type | Default | Purpose |
-|---|---|---|---|
-| `CHRISTMAS_ISLAND_APP_ID` | Variable | — | GitHub App ID for generating tokens |
-| `CHRISTMAS_ISLAND_PRIVATE_KEY` | Secret | — | GitHub App private key |
+| Variable | Purpose |
+|---|---|
+| `GH_APP_ID_VAR` | GitHub Actions `vars.*` name for the App ID |
+| `GH_APP_KEY_SECRET` | GitHub Actions `secrets.*` name for the App private key |
+| `GH_APP_OWNER` | GitHub App installation owner (org or user) |
 
-These are used by `actions/create-github-app-token` to generate a token with write permissions for creating releases and pushing tags/changelogs.
+These are required — consumers must provide all three via `template-vars`. They are used by `actions/create-github-app-token` to generate a token with write permissions for creating releases and pushing tags/changelogs.
 
-### Using a different GitHub App
-
-Override the template variables in your consumer config to use your own app credentials:
+### Example
 
 ```yaml
 - repo:
-    url: https://github.com/christmas-island/cr-semantic-release
+    url: https://github.com/common-repo/semantic-release
     ref: v2.0.0
     with:
       - template-vars:
-          GH_APP_ID_VAR: MY_APP_ID          # GitHub vars name
-          GH_APP_KEY_SECRET: MY_APP_KEY      # GitHub secrets name
-          GH_APP_OWNER: my-org               # App installation owner
+          GH_APP_ID_VAR: MY_APP_ID
+          GH_APP_KEY_SECRET: MY_APP_KEY
+          GH_APP_OWNER: my-org
 ```
 
 This renders the workflow with `${{ vars.MY_APP_ID }}`, `${{ secrets.MY_APP_KEY }}`, and `owner: my-org`.
@@ -100,7 +90,7 @@ If you only want a subset:
 
 ```yaml
 - repo:
-    url: https://github.com/christmas-island/cr-semantic-release
+    url: https://github.com/common-repo/semantic-release
     ref: v1.1.0
     with:
       - include: ["src/.releaserc.yaml", "src/commitlint.config.js"]
@@ -114,7 +104,7 @@ Use common-repo's YAML merge operator to patch specific fields:
 
 ```yaml
 - repo:
-    url: https://github.com/christmas-island/cr-semantic-release
+    url: https://github.com/common-repo/semantic-release
     ref: v1.1.0
 - yaml:
     source: my-releaserc-overrides.yaml

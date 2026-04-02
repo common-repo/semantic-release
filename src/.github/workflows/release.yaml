@@ -28,9 +28,9 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ vars.${GH_APP_ID_VAR:-CHRISTMAS_ISLAND_APP_ID} }}
-          private-key: ${{ secrets.${GH_APP_KEY_SECRET:-CHRISTMAS_ISLAND_PRIVATE_KEY} }}
-          owner: ${GH_APP_OWNER:-christmas-island}
+          app-id: ${{ vars.__COMMON_REPO__GH_APP_ID_VAR__ }}
+          private-key: ${{ secrets.__COMMON_REPO__GH_APP_KEY_SECRET__ }}
+          owner: __COMMON_REPO__GH_APP_OWNER__
 
       - uses: actions/checkout@v4
         with:

@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Generate app token
         id: app-token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
           # TODO(shakefu): Fix this secret to be a variable, and named correctly.
           app-id: ${{ secrets.COMMON_REPO_BOT_CLIENT_ID }}
@@ -39,7 +39,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}

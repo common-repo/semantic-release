@@ -23,8 +23,8 @@ jobs:
 
       - uses: j178/prek-action@53276d8b0d10f8b6672aa85b4588c6921d0370cc # v2
 
-  test:
-    name: Test
+  validate:
+    name: Validate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -36,3 +36,13 @@ jobs:
 
       - name: Dry-run apply
         run: common-repo apply --dry-run
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Run tests
+        run: |
+          [ ! -x "script/test" ] || script/test

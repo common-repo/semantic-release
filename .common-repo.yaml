@@ -1,20 +1,17 @@
-# Consumer config: inherit shared dev tooling from cr-upstream-repo
+# This repository is for use as an upstream source for other repositories.
 - self:
     - repo:
-        url: https://github.com/common-repo/cr-upstream-repo
-        ref: v1
-    - exclude:
-        - ".releaserc.yaml"
-        - "commitlint.config.cjs"
-        - ".github/workflows/release.yaml"
-        - ".github/workflows/commitlint.yml"
+        url: https://github.com/common-repo/upstream
+        ref: v2.1.2
 
-# Source-level config: only expose src/ contents, renamed to root.
+# Include src/ contents, declare release.yaml as a template, and rename src/ to
+# root directory.
 - include:
     - "src/**"
-    - "src/.*"
-    - "src/.*/**"
 - template:
     - "src/.github/workflows/release.yaml"
 - rename:
     - "^src/(.*)$": "$1"
+- repo:
+    url: https://github.com/common-repo/conventional-commits
+    ref: v1.3.0

@@ -6,18 +6,18 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
-
 concurrency:
   group: release
   cancel-in-progress: false
+
+permissions:
+  contents: write
 
 jobs:
   ci:
     name: CI
     permissions:
-      contents: write
+      contents: read
     uses: ./.github/workflows/ci.yaml
     secrets: inherit
 
@@ -30,62 +30,46 @@ jobs:
     steps:
       - name: Generate app token
         id: app-token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3
+        uses: actions/create-github-app-token@v2
         with:
-          # TODO(shakefu): Fix this secret to be a variable, and named correctly.
           app-id: ${{ secrets.COMMON_REPO_BOT_CLIENT_ID }}
           private-key: ${{ secrets.COMMON_REPO_BOT_PRIVATE_KEY }}
           owner: common-repo
 
-      - name: Get GitHub App User ID
-        id: get-user-id
-        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: true
 
-      - name: Cocogitto Release
+      - uses: actions/setup-node@v5
+        with:
+          cache: npm
+          cache-dependency-path: ".releaserc.yaml"
+          node-version: lts/*
+
+      - name: Semantic Release
         id: release
-        uses: cocogitto/cocogitto-action@390bda87a19bf627e03ad075c67a11e9ddbb7547 # v4
-        with:
-          command: bump
-          args: --auto
-          git-user: '${{ steps.app-token.outputs.app-slug }}[bot]'
-          git-user-email: '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-
-      - name: Generate changelog
-        if: steps.release.outputs.version != ''
-        id: changelog
-        uses: cocogitto/cocogitto-action@390bda87a19bf627e03ad075c67a11e9ddbb7547 # v4
-        with:
-          command: changelog
-          args: --at ${{ steps.release.outputs.version }}
-
-      - name: Update major version tag
-        if: steps.release.outputs.version != ''
         run: |
-          VERSION="${{ steps.release.outputs.version }}"
-          MAJOR="${VERSION%%.*}"
-          git tag -f "$MAJOR"
-          git push origin "$MAJOR" --force
+          # Semantic Release
+          npm install --no-save --no-package-lock \
+            "@semantic-release/commit-analyzer" \
+            "@semantic-release/release-notes-generator" \
+            "@semantic-release/github" \
+            "semantic-release-major-tag" \
+            "conventional-changelog-conventionalcommits"
+          npx semantic-release 2>&1 | tee release.log
+          exit_code=$PIPESTATUS
+          if [ "$exit_code" -ne 0 ]; then
+            echo "::error::Semantic release failed with exit code $exit_code"
+            exit "$exit_code"
+          fi
+          if grep -q "There are no relevant changes, so no new version is released." release.log; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-
-      - name: Create GitHub release
-        if: steps.release.outputs.version != ''
-        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2
-        with:
-          tag_name: ${{ steps.release.outputs.version }}
-          body: ${{ steps.changelog.outputs.stdout }}
-          token: ${{ steps.app-token.outputs.token }}
-
     outputs:
-      publish: ${{ steps.release.outputs.version != '' }}
-      version: ${{ steps.release.outputs.version }}
+      publish: ${{ steps.release.outputs.publish }}

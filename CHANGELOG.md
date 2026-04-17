@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.5.1 - 2026-04-17
+#### Bug Fixes
+- (**ci**) add trailing newline to CHANGELOG.md for end-of-file-fixer - (0e8b4f4) - Jacob Alheid
+
+- - -
+
 ## v0.5.0 - 2026-04-17
 #### Features
 - <span style="background-color: #d73a49; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.85em;">BREAKING</span>(**src**) cocogitto-based release flow with pre-bump slot - (ae9b5d1) - Jacob Alheid

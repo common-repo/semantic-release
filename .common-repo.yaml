@@ -1,11 +1,28 @@
-# This repository is for use as an upstream source for other repositories.
+# Local consumption — apply our own source files to this repo
 - self:
     - repo:
         url: https://github.com/common-repo/upstream
         ref: v2.1.2
+    - include:
+        - "src/**"
+    - template:
+        - "src/.github/workflows/release.yaml"
+    - rename:
+        - "^src/(.*)$": "$1"
+    # Drop semantic-release artifacts that upstream still ships — this repo has
+    # migrated to cocogitto and the release.yaml we distribute doesn't use them.
+    - exclude:
+        - ".releaserc.yaml"
+        - "commitlint.config.cjs"
+    - repo:
+        url: https://github.com/common-repo/conventional-commits
+        ref: v1.3.0
+    - template-vars:
+        GH_APP_ID_SECRET: COMMON_REPO_BOT_CLIENT_ID
+        GH_APP_KEY_SECRET: COMMON_REPO_BOT_PRIVATE_KEY
+        GH_APP_OWNER: common-repo
 
-# Include src/ contents, declare release.yaml as a template, and rename src/ to
-# root directory.
+# Source API — what consumers inherit
 - include:
     - "src/**"
 - template:

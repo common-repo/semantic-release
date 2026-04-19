@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.5.2 - 2026-04-19
+#### Bug Fixes
+- (**common-repo**) bump conventional-commits upstream to v1.3.1 - (f897257) - Jacob Alheid
+- (**pre-commit**) remove stale duplicate builtin repo block - (9732a09) - Jacob Alheid
+
+- - -
+
 ## v0.5.1 - 2026-04-17
 #### Bug Fixes
 - (**ci**) add trailing newline to CHANGELOG.md for end-of-file-fixer - (0e8b4f4) - Jacob Alheid

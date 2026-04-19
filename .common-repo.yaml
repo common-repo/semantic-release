@@ -16,7 +16,7 @@
         - "commitlint.config.cjs"
     - repo:
         url: https://github.com/common-repo/conventional-commits
-        ref: v1.3.0
+        ref: v1.3.1
     - template-vars:
         GH_APP_ID_SECRET: COMMON_REPO_BOT_CLIENT_ID
         GH_APP_KEY_SECRET: COMMON_REPO_BOT_PRIVATE_KEY
@@ -31,4 +31,4 @@
     - "^src/(.*)$": "$1"
 - repo:
     url: https://github.com/common-repo/conventional-commits
-    ref: v1.3.0
+    ref: v1.3.1

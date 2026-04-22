@@ -2,7 +2,7 @@
 - self:
     - repo:
         url: https://github.com/common-repo/upstream
-        ref: v2.1.2
+        ref: v2.1.4
     - include:
         - "src/**"
     - template:
@@ -23,4 +23,4 @@
     - "^src/(.*)$": "$1"
 - repo:
     url: https://github.com/common-repo/conventional-commits
-    ref: v1.3.1
+    ref: v1.4.0

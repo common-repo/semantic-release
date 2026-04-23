@@ -172,4 +172,6 @@ jobs:
       # tag, the GitHub release, and any attached assets already in place.
       - name: Push bump commit
         if: steps.plan.outputs.is-release == 'true'
-        run: git push origin "HEAD:${{ github.ref_name }}"
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: git push origin "HEAD:${BRANCH}"

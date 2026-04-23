@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.6.1 - 2026-04-23
+#### Bug Fixes
+- (**ci,src**) prevent script injection via github.ref_name - (4a0e5cf) - Jacob Alheid
+#### Refactoring
+- (**src**) namespace release concurrency group under common-repo/semantic-release - (b787ebc) - Jacob Alheid
+
+- - -
+
 ## v0.6.0 - 2026-04-23
 #### Features
 - (**common-repo**) update upstream to v2.1.4 and conventional-commits to v1.4.0 - (bf47a55) - Jacob Alheid

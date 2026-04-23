@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: release
+  group: common-repo/semantic-release/release
   cancel-in-progress: false
 
 env:

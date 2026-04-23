@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.6.0 - 2026-04-23
+#### Features
+- (**common-repo**) update upstream to v2.1.4 and conventional-commits to v1.4.0 - (bf47a55) - Jacob Alheid
+#### Bug Fixes
+- (**common-repo**) remove intermediate configuration no longer relevant - (8796897) - Jacob Alheid
+
+- - -
+
 ## v0.5.2 - 2026-04-19
 #### Bug Fixes
 - (**common-repo**) bump conventional-commits upstream to v1.3.1 - (f897257) - Jacob Alheid

@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.6.2 - 2026-05-05
+#### Bug Fixes
+- (**src**) derive release identity from GitHub App token - (e886516) - Jacob Alheid
+
+- - -
+
 ## v0.6.1 - 2026-04-23
 #### Bug Fixes
 - (**ci,src**) prevent script injection via github.ref_name - (4a0e5cf) - Jacob Alheid

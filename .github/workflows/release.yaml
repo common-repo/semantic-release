@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: release
+  group: common-repo/semantic-release/release
   cancel-in-progress: false
 
 env:
@@ -60,10 +60,21 @@ jobs:
           sudo install -m 0755 "${tmp}"/*/cog /usr/local/bin/cog
           cog --version
 
+      # Resolve the GitHub App's bot identity from the token we just minted so
+      # commits and tags are attributed to the app installation that's actually
+      # pushing them, rather than a hardcoded placeholder. The bot user follows
+      # GitHub's `<app-slug>[bot]` / `<user-id>+<app-slug>[bot]@users.noreply.github.com`
+      # convention; the user id is looked up via the API since the token action
+      # only exposes the slug.
       - name: Configure git identity
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
         run: |
-          git config user.name  'cog-bot'
-          git config user.email 'cog-bot@users.noreply.github.com'
+          set -euo pipefail
+          user_id="$(gh api "/users/${APP_SLUG}%5Bbot%5D" --jq .id)"
+          git config user.name  "${APP_SLUG}[bot]"
+          git config user.email "${user_id}+${APP_SLUG}[bot]@users.noreply.github.com"
 
       # Dry-run to decide whether this push warrants a release. cog exits 0 in
       # both "bump planned" and "no bump needed" cases, distinguished by whether

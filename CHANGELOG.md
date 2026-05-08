@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.6.3 - 2026-05-08
+#### Bug Fixes
+- update common-repo upstream version - (5567006) - jathanism
+
+- - -
+
 ## v0.6.2 - 2026-05-05
 #### Bug Fixes
 - (**src**) derive release identity from GitHub App token - (e886516) - Jacob Alheid

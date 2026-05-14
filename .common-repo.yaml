@@ -17,6 +17,14 @@
 # Source API — what consumers inherit
 - include:
     - "src/**"
+# ci.yaml is a sensible-default stub. Re-include narrowly with
+# `if-exists: preserve` so consumers who maintain their own
+# .github/workflows/ci.yaml keep it across re-propagations.
+# Last-op-wins on the same path means this re-stamps ci.yaml's
+# tag from `overwrite` to `preserve` after the wide include above.
+- include:
+    - "src/.github/workflows/ci.yaml"
+  if-exists: preserve
 - template:
     - "src/.github/workflows/release.yaml"
 - rename:

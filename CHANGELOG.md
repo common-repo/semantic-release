@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.6.4 - 2026-05-14
+#### Bug Fixes
+- allow markdownlint-cli2 in release prek run - (3811ad7) - Jacob Alheid
+- target only safe formatting hooks in release prek run - (11cc600) - Jacob Alheid
+- run prek after cog bump to fix CHANGELOG formatting - (c655bb5) - Jacob Alheid
+
+- - -
+
 ## v0.6.3 - 2026-05-08
 #### Bug Fixes
 - update common-repo upstream version - (5567006) - jathanism

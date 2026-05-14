@@ -134,13 +134,28 @@ jobs:
         with:
           install-only: "true"
 
+      # Only run hooks that are safe in a generic release workflow — i.e.
+      # don't require pre-installed language toolchains (Python, Node, Go,
+      # etc.). That means the prek/pre-commit builtins that fix formatting,
+      # plus markdownlint if the consumer happens to use it. Unknown hook
+      # IDs are swallowed by `|| true` so consumers without a given hook
+      # just skip it.
       - name: Fix bump formatting
         if: steps.plan.outputs.is-release == 'true'
         env:
           TAG: ${{ steps.plan.outputs.tag }}
         run: |
           set -euo pipefail
-          prek run --all-files || true
+          hooks=(
+            trailing-whitespace
+            end-of-file-fixer
+            fix-byte-order-marker
+            mixed-line-ending
+            markdownlint
+          )
+          for hook in "${hooks[@]}"; do
+            prek run --all-files "${hook}" || true
+          done
           if ! git diff --quiet; then
             git add -A
             git commit --amend --no-edit

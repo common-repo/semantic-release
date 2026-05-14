@@ -124,6 +124,29 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: cog bump --auto
 
+      # cog's generated CHANGELOG may contain formatting issues (trailing
+      # whitespace, missing final newline, etc.) that violate pre-commit
+      # hooks. Run prek to fix them and amend the bump commit if anything
+      # changed.
+      - name: Install prek
+        if: steps.plan.outputs.is-release == 'true'
+        uses: j178/prek-action@53276d8b0d10f8b6672aa85b4588c6921d0370cc # v2
+        with:
+          install-only: "true"
+
+      - name: Fix bump formatting
+        if: steps.plan.outputs.is-release == 'true'
+        env:
+          TAG: ${{ steps.plan.outputs.tag }}
+        run: |
+          set -euo pipefail
+          prek run --all-files || true
+          if ! git diff --quiet; then
+            git add -A
+            git commit --amend --no-edit
+            git tag -f "${TAG}"
+          fi
+
       # Push the tag first so the remote has the commit SHA the release will
       # target. Doing this before pushing the bump commit to the default branch
       # is what lets us avoid races with VCS-driven consumers (Terraform Cloud,

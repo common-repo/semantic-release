@@ -152,6 +152,7 @@ jobs:
             fix-byte-order-marker
             mixed-line-ending
             markdownlint
+            markdownlint-cli2
           )
           for hook in "${hooks[@]}"; do
             prek run --all-files "${hook}" || true

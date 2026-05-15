@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.7.0 - 2026-05-15
+#### Features
+- (**common-repo,src**) ship ci.yaml stub for downstream consumers - (6c08518) - Jacob Alheid
+
+- - -
+
 ## v0.6.4 - 2026-05-14
 #### Bug Fixes
 - allow markdownlint-cli2 in release prek run - (3811ad7) - Jacob Alheid

@@ -57,13 +57,17 @@ cr apply   # write
 
 ## Template Variables
 
-All three are required:
+Set all three for your GitHub App installation:
 
 | Variable | Purpose |
 |---|---|
 | `GH_APP_ID_SECRET` | Name of the `secrets.*` entry holding the GitHub App's numeric ID |
 | `GH_APP_KEY_SECRET` | Name of the `secrets.*` entry holding the App's private key PEM |
 | `GH_APP_OWNER` | Owner (org or user) the App is installed on |
+
+The template defaults to `COMMON_REPO_BOT_CLIENT_ID`,
+`COMMON_REPO_BOT_PRIVATE_KEY`, and owner `common-repo` for this repository's
+own validation. Consumer `with: template-vars` overrides those defaults.
 
 These are consumed by
 [`actions/create-github-app-token`](https://github.com/actions/create-github-app-token)

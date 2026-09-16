@@ -15,6 +15,12 @@
         GH_APP_OWNER: common-repo
 
 # Source API — what consumers inherit
+# Source and self pipelines have separate variable scopes. These defaults
+# allow local apply; consumer with: template-vars override them.
+- template-vars:
+    GH_APP_ID_SECRET: COMMON_REPO_BOT_CLIENT_ID
+    GH_APP_KEY_SECRET: COMMON_REPO_BOT_PRIVATE_KEY
+    GH_APP_OWNER: common-repo
 - include:
     - "src/**"
 # ci.yaml is a sensible-default stub. Re-include narrowly with

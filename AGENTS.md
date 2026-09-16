@@ -17,7 +17,7 @@ Reusable common-repo template for automated releases. Consumer contract: [README
 - **prek** — repository hooks; **conventional-pre-commit** — local commit-message validation.
 - Run `prek install` on new checkouts/worktrees; validate with `prek run --all-files`, `common-repo validate`, and `common-repo apply --dry-run`.
 - `cog check --from-latest-tag` checks commit history. CI also runs an executable `script/test` when a consumer supplies one.
-- Release templates require `GH_APP_ID_SECRET`, `GH_APP_KEY_SECRET`, and `GH_APP_OWNER`; see README for credentials and branch-protection requirements.
+- Source and `self:` pipelines have separate variable scopes; keep local GitHub App defaults in both. Consumer `with: template-vars` overrides source defaults; see README for credentials and branch protection.
 
 ## Maintaining this index
 

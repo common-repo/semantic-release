@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.7.1 - 2026-09-17
+#### Bug Fixes
+- define release template defaults in source scope - (1077d2a) - Jacob Alheid
+#### Documentation
+- add agent navigation index and Claude pointer - (db347f0) - Jacob Alheid
+
+- - -
+
 ## v0.7.0 - 2026-05-15
 #### Features
 - (**common-repo,src**) ship ci.yaml stub for downstream consumers - (6c08518) - Jacob Alheid

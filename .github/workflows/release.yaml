@@ -152,8 +152,8 @@ jobs:
       # CHANGELOG.md has no final newline, and later bumps keep the ending of
       # the file, so without this step the file never gets one. Normalize
       # the changelog here with Python: remove trailing whitespace, keep a
-      # Markdown hard line break (exactly two trailing spaces), and end the
-      # file with one newline. The path is `changelog.path` from cog.toml,
+      # Markdown hard line break (two or more trailing spaces, kept as two),
+      # and end the file with one newline. The path is `changelog.path` from cog.toml,
       # read with tomllib (Python 3.11 or later; ubuntu-latest has 3.12), in
       # any TOML form, with CHANGELOG.md as the default. cog staged the hook
       # outputs before the bump commit, so the only changes here are edits
@@ -192,7 +192,8 @@ jobs:
               lines = []
               for line in changelog.read_text().split("\n"):
                   stripped = line.rstrip()
-                  hard_break = bool(stripped) and line[len(stripped):] == "  "
+                  tail = line[len(stripped):]
+                  hard_break = bool(stripped) and len(tail) >= 2 and tail == " " * len(tail)
                   lines.append(stripped + "  " if hard_break else stripped)
               changelog.write_text("\n".join(lines).rstrip("\n") + "\n")
           PY

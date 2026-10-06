@@ -153,11 +153,11 @@ jobs:
       # the file, so without this step the file never gets one. Normalize
       # the changelog here with Python: remove trailing whitespace, keep a
       # Markdown hard line break (two or more trailing spaces, kept as two),
-      # and end the file with one newline. The path is `changelog.path` from cog.toml,
-      # read with tomllib (Python 3.11 or later; ubuntu-latest has 3.12), in
-      # any TOML form, with CHANGELOG.md as the default. cog staged the hook
-      # outputs before the bump commit, so the only changes here are edits
-      # to tracked files: restage them with `git add -u`.
+      # and end the file with one newline. The path is `changelog.path` from
+      # cog.toml, read with tomllib (Python 3.11 or later; ubuntu-latest has
+      # 3.12), in any TOML form, with CHANGELOG.md as the default. cog staged
+      # the hook outputs before the bump commit, so the only changes here are
+      # edits to tracked files: restage them with `git add -u`.
       - name: Fix bump formatting
         if: steps.plan.outputs.is-release == 'true'
         env:

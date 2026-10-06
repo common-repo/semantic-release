@@ -61,7 +61,7 @@ Set all three for your GitHub App installation:
 
 | Variable | Purpose |
 |---|---|
-| `GH_APP_ID_SECRET` | Name of the `secrets.*` entry holding the GitHub App's numeric ID |
+| `GH_APP_ID_SECRET` | Name of the `secrets.*` entry holding the GitHub App's ID (the numeric App ID or the Client ID; both work as `client-id`) |
 | `GH_APP_KEY_SECRET` | Name of the `secrets.*` entry holding the App's private key PEM |
 | `GH_APP_OWNER` | Owner (org or user) the App is installed on |
 
@@ -124,9 +124,10 @@ Consumers plug into three well-defined slots:
 
 Cocogitto's [`pre_bump_hooks`](https://docs.cocogitto.io/guide/bump.html#pre-bump-hooks)
 run inside `cog bump`, before the commit and tag are created. The planned
-version is available as `{{version}}`. Any files the hooks modify must be
-`git add`'d by the hook to be included in the bump commit. A non-zero exit
-aborts the whole release.
+version is available as `{{version}}`. After the hooks, cog stages every
+change (`git add --all`, which honors `.gitignore`), so files the hooks write
+enter the bump commit; keep release assets that must stay out of it in an
+ignored directory such as `dist/`. A non-zero exit aborts the whole release.
 
 Hooks go in the consumer's `cog.toml`. The template ships a minimal
 `cog.toml`; extend it by adding your own via a common-repo `toml:` merge:

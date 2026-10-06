@@ -117,9 +117,11 @@ jobs:
 
       # Runs any `pre_bump_hooks` configured in cog.toml (artifact builds,
       # registry pushes, in-tree version stamps, etc). Hooks receive `{{version}}`
-      # as the planned version. Any files modified by hooks should be `git add`'d
-      # by the hook so they're included in the bump commit. The resulting commit
-      # + tag stay local — we push them in a controlled order below.
+      # as the planned version. After the hooks, cog stages every change
+      # (`git add --all`, which honors .gitignore), so files the hooks write
+      # enter the bump commit; keep release assets that must stay out of it
+      # in an ignored directory such as dist/. The resulting commit + tag stay
+      # local — we push them in a controlled order below.
       - name: Bump (commit + tag, local only)
         if: steps.plan.outputs.is-release == 'true'
         env:
@@ -152,10 +154,10 @@ jobs:
       # the changelog here: remove trailing whitespace (this also removes
       # Markdown hard line breaks, which cog's template does not produce)
       # and end the file with one newline. The path comes from `path` in the
-      # [changelog] table of cog.toml (default CHANGELOG.md). Stage tracked
-      # changes only: a file that a pre_bump_hook writes is that hook's
-      # responsibility to git add, and an untracked one must not enter the
-      # bump commit here.
+      # [changelog] table of cog.toml (default CHANGELOG.md; double or single
+      # quotes). cog staged the hook outputs before the bump commit, so the
+      # only changes here are edits to tracked files: restage them with
+      # `git add -u`.
       - name: Fix bump formatting
         if: steps.plan.outputs.is-release == 'true'
         env:
@@ -173,7 +175,7 @@ jobs:
           for hook in "${hooks[@]}"; do
             prek run --all-files "${hook}" || true
           done
-          changelog="$(awk -F'"' '/^\[changelog\]/ { s = 1; next } /^\[/ { s = 0 } s && /^[[:space:]]*path[[:space:]]*=/ { print $2; exit }' cog.toml 2>/dev/null || true)"
+          changelog="$(awk -F"[\"']" '/^[[:space:]]*\[changelog\]/ { s = 1; next } /^[[:space:]]*\[/ { s = 0 } s && /^[[:space:]]*path[[:space:]]*=/ { print $2; exit }' cog.toml 2>/dev/null || true)"
           changelog="${changelog:-CHANGELOG.md}"
           if [ -f "${changelog}" ]; then
             sed -i 's/[[:space:]]*$//' "${changelog}"

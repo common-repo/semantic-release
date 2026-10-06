@@ -175,16 +175,16 @@ jobs:
           for hook in "${hooks[@]}"; do
             prek run --all-files "${hook}" || true
           done
-          # The value is the first quoted string on the path line; the opening
-          # quote selects the closing one, so the other quote character may
-          # appear inside the path.
+          # The value is the first quoted string on the path line (a `path` key
+          # in the [changelog] table, or a top-level `changelog.path` key); the
+          # opening quote selects the closing one, so the other quote character
+          # may appear inside the path. Multi-line strings are not supported.
           changelog="$(awk -v q="'" '
+            function quoted() { if (match($0, "\"[^\"]*\"|" q "[^" q "]*" q)) { print substr($0, RSTART + 1, RLENGTH - 2) } }
             /^[[:space:]]*\[changelog\]/ { s = 1; next }
             /^[[:space:]]*\[/ { s = 0 }
-            s && /^[[:space:]]*path[[:space:]]*=/ {
-              if (match($0, "\"[^\"]*\"|" q "[^" q "]*" q)) { print substr($0, RSTART + 1, RLENGTH - 2) }
-              exit
-            }' cog.toml 2>/dev/null || true)"
+            !s && /^[[:space:]]*changelog\.path[[:space:]]*=/ { quoted(); exit }
+            s && /^[[:space:]]*path[[:space:]]*=/ { quoted(); exit }' cog.toml 2>/dev/null || true)"
           changelog="${changelog:-CHANGELOG.md}"
           if [ -f "${changelog}" ]; then
             sed -i 's/[[:space:]]*$//' "${changelog}"

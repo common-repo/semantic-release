@@ -125,9 +125,9 @@ jobs:
         run: cog bump --auto
 
       # The bump commit can carry formatting that the pre-commit hooks would
-      # change: cog writes CHANGELOG.md without a final newline, and
+      # change: cog's initial CHANGELOG.md has no final newline, and
       # pre_bump_hooks can write files of their own. Run the formatting
-      # hooks, normalize CHANGELOG.md, and amend the bump commit if anything
+      # hooks, normalize the changelog, and amend the bump commit if anything
       # changed.
       - name: Install prek
         if: steps.plan.outputs.is-release == 'true'
@@ -143,10 +143,17 @@ jobs:
       # just skip it.
       #
       # The hooks from common-repo/pre-commit exclude CHANGELOG.md (and the
-      # other generated files) on purpose, so they never touch the file that
-      # cog just wrote. Normalize CHANGELOG.md here instead: remove trailing
-      # whitespace and end the file with one newline. Without this, every
-      # bump commit leaves CHANGELOG.md without a final newline.
+      # other generated files) so that generated output does not fail the
+      # Lint check; they never touch the file that cog writes. cog's initial
+      # CHANGELOG.md has no final newline, and later bumps keep the ending of
+      # the file, so without this step the file never gets one. Normalize
+      # the changelog here: remove trailing whitespace (this also removes
+      # Markdown hard line breaks, which cog's template does not produce)
+      # and end the file with one newline. The path comes from `path` in the
+      # [changelog] table of cog.toml (default CHANGELOG.md). Stage tracked
+      # changes only: a file that a pre_bump_hook writes is that hook's
+      # responsibility to git add, and an untracked one must not enter the
+      # bump commit here.
       - name: Fix bump formatting
         if: steps.plan.outputs.is-release == 'true'
         env:
@@ -164,13 +171,15 @@ jobs:
           for hook in "${hooks[@]}"; do
             prek run --all-files "${hook}" || true
           done
-          if [ -f CHANGELOG.md ]; then
-            sed -i -e 's/[[:space:]]*$//' CHANGELOG.md
-            content="$(cat CHANGELOG.md)"
-            printf '%s\n' "${content}" > CHANGELOG.md
+          changelog="$(awk -F'"' '/^\[changelog\]/ { s = 1; next } /^\[/ { s = 0 } s && /^[[:space:]]*path[[:space:]]*=/ { print $2; exit }' cog.toml 2>/dev/null || true)"
+          changelog="${changelog:-CHANGELOG.md}"
+          if [ -f "${changelog}" ]; then
+            sed -i 's/[[:space:]]*$//' "${changelog}"
+            content="$(cat "${changelog}")"
+            printf '%s\n' "${content}" > "${changelog}"
           fi
           if ! git diff --quiet; then
-            git add -A
+            git add -u
             git commit --amend --no-edit
             git tag -f "${TAG}"
           fi

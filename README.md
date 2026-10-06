@@ -138,7 +138,7 @@ Hooks go in the consumer's `cog.toml`. The template ships a minimal
     url: https://github.com/common-repo/semantic-release
     ref: v0.3.0
     with:
-      - template-vars: { GH_APP_ID_VAR: ..., GH_APP_KEY_SECRET: ..., GH_APP_OWNER: ... }
+      - template-vars: { GH_APP_ID_SECRET: ..., GH_APP_KEY_SECRET: ..., GH_APP_OWNER: ... }
 
 - toml:
     source: cog-hooks.toml   # consumer-local file with hooks

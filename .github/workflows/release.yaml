@@ -151,13 +151,13 @@ jobs:
       # Lint check; they never touch the file that cog writes. cog's initial
       # CHANGELOG.md has no final newline, and later bumps keep the ending of
       # the file, so without this step the file never gets one. Normalize
-      # the changelog here: remove trailing whitespace (this also removes
-      # Markdown hard line breaks, which cog's template does not produce)
-      # and end the file with one newline. The path comes from `path` in the
-      # [changelog] table of cog.toml (default CHANGELOG.md; double or single
-      # quotes). cog staged the hook outputs before the bump commit, so the
-      # only changes here are edits to tracked files: restage them with
-      # `git add -u`.
+      # the changelog here with Python: remove trailing whitespace, keep a
+      # Markdown hard line break (exactly two trailing spaces), and end the
+      # file with one newline. The path is `changelog.path` from cog.toml,
+      # read with tomllib (Python 3.11 or later; ubuntu-latest has 3.12), in
+      # any TOML form, with CHANGELOG.md as the default. cog staged the hook
+      # outputs before the bump commit, so the only changes here are edits
+      # to tracked files: restage them with `git add -u`.
       - name: Fix bump formatting
         if: steps.plan.outputs.is-release == 'true'
         env:
@@ -175,22 +175,27 @@ jobs:
           for hook in "${hooks[@]}"; do
             prek run --all-files "${hook}" || true
           done
-          # The value is the first quoted string on the path line (a `path` key
-          # in the [changelog] table, or a top-level `changelog.path` key); the
-          # opening quote selects the closing one, so the other quote character
-          # may appear inside the path. Multi-line strings are not supported.
-          changelog="$(awk -v q="'" '
-            function quoted() { if (match($0, "\"[^\"]*\"|" q "[^" q "]*" q)) { print substr($0, RSTART + 1, RLENGTH - 2) } }
-            /^[[:space:]]*\[changelog\]/ { s = 1; next }
-            /^[[:space:]]*\[/ { s = 0 }
-            !s && /^[[:space:]]*changelog\.path[[:space:]]*=/ { quoted(); exit }
-            s && /^[[:space:]]*path[[:space:]]*=/ { quoted(); exit }' cog.toml 2>/dev/null || true)"
-          changelog="${changelog:-CHANGELOG.md}"
-          if [ -f "${changelog}" ]; then
-            sed -i 's/[[:space:]]*$//' "${changelog}"
-            content="$(cat "${changelog}")"
-            printf '%s\n' "${content}" > "${changelog}"
-          fi
+          python3 - <<'PY'
+          import pathlib
+          import tomllib
+
+          path = "CHANGELOG.md"
+          try:
+              with open("cog.toml", "rb") as f:
+                  section = tomllib.load(f).get("changelog")
+              if isinstance(section, dict) and isinstance(section.get("path"), str):
+                  path = section["path"]
+          except (OSError, tomllib.TOMLDecodeError):
+              pass
+          changelog = pathlib.Path(path)
+          if changelog.is_file():
+              lines = []
+              for line in changelog.read_text().split("\n"):
+                  stripped = line.rstrip()
+                  hard_break = bool(stripped) and line[len(stripped):] == "  "
+                  lines.append(stripped + "  " if hard_break else stripped)
+              changelog.write_text("\n".join(lines).rstrip("\n") + "\n")
+          PY
           if ! git diff --quiet; then
             git add -u
             git commit --amend --no-edit

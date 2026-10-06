@@ -124,9 +124,10 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: cog bump --auto
 
-      # cog's generated CHANGELOG may contain formatting issues (trailing
-      # whitespace, missing final newline, etc.) that violate pre-commit
-      # hooks. Run prek to fix them and amend the bump commit if anything
+      # The bump commit can carry formatting that the pre-commit hooks would
+      # change: cog writes CHANGELOG.md without a final newline, and
+      # pre_bump_hooks can write files of their own. Run the formatting
+      # hooks, normalize CHANGELOG.md, and amend the bump commit if anything
       # changed.
       - name: Install prek
         if: steps.plan.outputs.is-release == 'true'
@@ -140,6 +141,12 @@ jobs:
       # plus markdownlint if the consumer happens to use it. Unknown hook
       # IDs are swallowed by `|| true` so consumers without a given hook
       # just skip it.
+      #
+      # The hooks from common-repo/pre-commit exclude CHANGELOG.md (and the
+      # other generated files) on purpose, so they never touch the file that
+      # cog just wrote. Normalize CHANGELOG.md here instead: remove trailing
+      # whitespace and end the file with one newline. Without this, every
+      # bump commit leaves CHANGELOG.md without a final newline.
       - name: Fix bump formatting
         if: steps.plan.outputs.is-release == 'true'
         env:
@@ -157,6 +164,11 @@ jobs:
           for hook in "${hooks[@]}"; do
             prek run --all-files "${hook}" || true
           done
+          if [ -f CHANGELOG.md ]; then
+            sed -i -e 's/[[:space:]]*$//' CHANGELOG.md
+            content="$(cat CHANGELOG.md)"
+            printf '%s\n' "${content}" > CHANGELOG.md
+          fi
           if ! git diff --quiet; then
             git add -A
             git commit --amend --no-edit

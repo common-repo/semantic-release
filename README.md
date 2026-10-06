@@ -158,7 +158,8 @@ pre_bump_hooks = [
 
 The release workflow uploads anything in `./dist/` to the GitHub Release.
 Hooks that want their outputs attached to the release should write them
-there.
+there. Add `dist/` to `.gitignore`: cog stages every change that is not
+ignored after the hooks, so an unignored `dist/` lands in the bump commit.
 
 ### Example: Lambda zip consumed by Terraform
 
@@ -172,8 +173,8 @@ pre_bump_hooks = [
 Sequence at release time:
 
 1. Hook builds `./dist/lambda.zip`.
-2. `cog` creates the bump commit (with any `git add`'d files) and the
-   `v{{version}}` tag — local only.
+2. `cog` stages every change that is not ignored (`./dist/` is ignored),
+   then creates the bump commit and the `v{{version}}` tag — local only.
 3. Workflow pushes the tag.
 4. Workflow creates the GitHub Release and attaches `./dist/lambda.zip`.
 5. Workflow pushes the bump commit to `main`.
@@ -187,14 +188,14 @@ Sequence at release time:
 pre_bump_hooks = [
   "docker build -t $ECR_REPO:{{version}} .",
   "docker push $ECR_REPO:{{version}}",
-  "scripts/stamp-ecs-version.sh {{version}} && git add terraform/ecs.tf",
+  "scripts/stamp-ecs-version.sh {{version}}",
 ]
 ```
 
 The hook pushes the image to ECR and stamps the new version into the
-Terraform resource. The `git add` ensures the stamped file is part of the
-bump commit. When the commit hits `main`, Terraform runs and finds the
-image already in ECR.
+Terraform resource. cog stages the stamped file after the hooks, so it is
+part of the bump commit. When the commit hits `main`, Terraform runs and
+finds the image already in ECR.
 
 ---
 

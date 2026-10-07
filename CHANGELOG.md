@@ -2,6 +2,21 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.7.2 - 2026-10-07
+#### Bug Fixes
+- (**release**) keep hard line breaks of two or more spaces - (b3155f8) - Jacob Alheid
+- (**release**) normalize the changelog with Python and keep hard line breaks - (f79b9ac) - Jacob Alheid
+- (**release**) read the dotted changelog.path key too - (3f2c5c1) - Jacob Alheid
+- (**release**) match the closing quote of the changelog path - (0d5c0ac) - Jacob Alheid
+- (**release**) read quoted changelog paths and state how cog stages hook output - (0417a4b) - Jacob Alheid
+- (**release**) use client-id with create-github-app-token v3.2.0 - (f6e84c2) - Jacob Alheid
+- (**release**) stage tracked changes only and read the changelog path - (48d479f) - Jacob Alheid
+- (**release**) normalize CHANGELOG.md after cog bump - (eec7771) - Jacob Alheid
+#### Documentation
+- (**release**) rewrap the normalization comment - (b8aba62) - Jacob Alheid
+
+- - -
+
 ## v0.7.1 - 2026-09-17
 #### Bug Fixes
 - define release template defaults in source scope - (1077d2a) - Jacob Alheid

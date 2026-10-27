@@ -300,20 +300,39 @@ jobs:
       # A failure after the tag reached the remote would otherwise leave the
       # tag, the release, and the major tag published on a commit that never
       # lands on the branch — and the next run unable to plan the same
-      # version. Undo whatever was published so the next run starts clean.
-      # Every removal is best-effort: the failure may have happened before a
-      # given artifact was ever created.
+      # version. Undo what this run published, and only that: if the bump
+      # commit already reached the branch despite the reported failure, the
+      # release is complete; and a remote tag pointing anywhere else was
+      # never this run's to delete.
       - name: Roll back published release artifacts
         if: failure() && steps.plan.outputs.is-release == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BRANCH: ${{ github.ref_name }}
           TAG: ${{ steps.plan.outputs.tag }}
           MAJOR: ${{ steps.major.outputs.name }}
           MAJOR_PREV: ${{ steps.major.outputs.prev }}
         run: |
           set -euo pipefail
-          gh release delete "${TAG}" --yes || true
-          git push origin ":refs/tags/${TAG}" || true
+          remote_head="$(git ls-remote origin "refs/heads/${BRANCH}" | cut -f1)"
+          if [ -n "${remote_head}" ] && [ "${remote_head}" = "$(git rev-parse HEAD)" ]; then
+            echo "::notice::The bump commit is already on origin/${BRANCH}; the release is complete, not rolling back."
+            exit 0
+          fi
+          # The remote tag can only match this run's local tag if this run
+          # pushed it: the bump commit exists nowhere else, so a tag that
+          # predates the run or was pushed by another actor points elsewhere
+          # and is left alone. The release names that tag, so the same check
+          # covers it — including a release left half-created when
+          # `gh release create` failed mid-upload.
+          local_tag="$(git rev-parse "${TAG}" 2>/dev/null || true)"
+          remote_tag="$(git ls-remote origin "refs/tags/${TAG}" | head -n1 | cut -f1)"
+          if [ -n "${local_tag}" ] && [ "${local_tag}" = "${remote_tag}" ]; then
+            gh release delete "${TAG}" --yes || true
+            git push origin ":refs/tags/${TAG}" || true
+          else
+            echo "::notice::origin does not carry this run's ${TAG}; leaving the remote tag and release untouched."
+          fi
           if [ -n "${MAJOR}" ]; then
             if [ -n "${MAJOR_PREV}" ]; then
               git push origin --force "${MAJOR_PREV}:refs/tags/${MAJOR}"

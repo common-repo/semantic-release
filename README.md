@@ -89,9 +89,15 @@ On every push to `main`, the workflow:
    this is the extension point for producing artifacts that must exist at
    the tagged version *before* the bump commit lands on `main`.
 4. Creates the bump commit and tag locally.
-5. Pushes the tag, creates the GitHub Release (attaching anything in
+5. Verifies the remote `main` tip is still the commit the run checked out —
+   if a PR merged while the run was in progress, the run stops here without
+   publishing anything, and the queued run for the newer commit performs the
+   release.
+6. Pushes the tag, creates the GitHub Release (attaching anything in
    `./dist/`), updates the floating major-version tag (`vN`), and pushes the
-   bump commit to `main` — in that order.
+   bump commit to `main` — in that order. If any of these steps fails, the
+   published artifacts (tag, release, `vN`) are rolled back so the next run
+   can release the same version cleanly.
 
 The strict ordering (**tag → release → assets → major tag → commit**) is
 what makes this safe to combine with VCS-driven consumers. By the time the
@@ -291,10 +297,15 @@ Open an issue if you want this as a first-class toggle.
 - **Branch protection**. The release workflow pushes a bump commit to
   `main`. The GitHub App token must be allowed to bypass any required
   reviews / signed commits that would block a direct push.
-- **Fast-forward required**. If `main` moves between the initial checkout
-  and the final commit push, the push fails with non-fast-forward. The
-  workflow does not auto-rebase. In practice the `concurrency: release`
-  group plus the release job's short window make this rare.
+- **Fast-forward required**. The workflow checks that the remote `main` tip
+  is unchanged just before it starts publishing and stops without
+  publishing if a merge landed during the run. A few seconds of window
+  remain between that check and the final bump-commit push: if `main` moves
+  inside it, the run fails — by then the tag, the GitHub Release, and `vN`
+  are on a commit that never reaches `main`, so the workflow deletes the
+  tag and release and restores `vN` before exiting. If a rollback itself
+  fails, delete the tag and release by hand and re-run; the `concurrency:
+  release` group plus the job's short window make the whole scenario rare.
 - **GitHub App token scope**. The App needs `contents: write` on the
   target repo. If you publish to additional places (registries, other
   repos), grant those via the workflow's own secrets or additional tokens.

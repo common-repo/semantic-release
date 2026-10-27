@@ -24,9 +24,14 @@ jobs:
     uses: ./.github/workflows/ci.yaml
     secrets: inherit
 
+  # Releases may only ever be published from the default branch. The push
+  # trigger is already scoped to main; this keeps a manual workflow_dispatch
+  # from another branch from publishing a version that never lands there.
+  # CI still runs for those dispatches.
   release:
     name: Release
     needs: ci
+    if: github.ref == 'refs/heads/main'
     permissions:
       contents: write
     runs-on: ubuntu-latest

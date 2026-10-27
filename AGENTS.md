@@ -6,7 +6,7 @@ Reusable common-repo template for automated releases. Consumer contract: [README
 
 - `.common-repo.yaml` — `self:` maintains this repo; the outer pipeline exports `src/**` into consumer roots and inherits conventional-commits.
 - `src/cog.toml` — release defaults; consumers add artifact-building `pre_bump_hooks` here through TOML merging.
-- `src/.github/workflows/release.yaml` — CI → local bump/hooks → push tag → publish release and `dist/*` assets → update major tag → push bump commit. Preserve publication order.
+- `src/.github/workflows/release.yaml` — CI → local bump/hooks → verify the remote branch hasn't advanced → push tag → publish release and `dist/*` assets → update major tag → push bump commit → roll back published artifacts on failure. Preserve publication order; never publish onto a moved branch.
 - `src/.github/workflows/ci.yaml` — reusable fallback CI; `if-exists: preserve` keeps a consumer's existing workflow through the sequential pass, and the deferred `yaml: auto-merge` in `.common-repo.yaml` merges the stub's jobs into it. Keep the auto-merge declaration after the `rename` op.
 - Root `.github/`, `cog.toml`, `.pre-commit-config.yaml` — this template's own maintenance configuration.
 - Keep agent indexes outside `src/`: every payload file is exported to consumers.

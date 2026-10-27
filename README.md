@@ -80,7 +80,8 @@ commits back to `main`.
 
 ## How releases work
 
-On every push to `main`, the workflow:
+On every push to `main` (or a manual run dispatched on `main`), the
+workflow:
 
 1. Runs the consumer's CI.
 2. Installs cocogitto and determines whether a new release is warranted
@@ -294,6 +295,10 @@ Open an issue if you want this as a first-class toggle.
   version per push to `main`. Monorepos with per-package versioning should
   use a different template (cocogitto supports monorepo mode, but this
   workflow isn't wired for it).
+- **Releases only publish from `main`**. The push trigger is scoped to
+  `main` and the release job is guarded to `refs/heads/main`, so a manual
+  `workflow_dispatch` from another branch runs CI but skips the release and
+  can never publish a version that isn't on `main`.
 - **Branch protection**. The release workflow pushes a bump commit to
   `main`. The GitHub App token must be allowed to bypass any required
   reviews / signed commits that would block a direct push.

@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.8.0 - 2026-10-27
+#### Features
+- (**common-repo**) declare auto-merge for the ci.yaml stub - (29b21a4) - jathanism
+#### Miscellaneous Chores
+- drop CLAUDE.md shim; AGENTS.md is read natively - (df76f87) - Jacob Alheid
+
+- - -
+
 ## v0.7.2 - 2026-10-07
 #### Bug Fixes
 - (**release**) keep hard line breaks of two or more spaces - (b3155f8) - Jacob Alheid

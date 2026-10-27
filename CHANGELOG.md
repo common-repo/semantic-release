@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.8.2 - 2026-10-27
+#### Bug Fixes
+- (**release**) roll back only the artifacts this run published - (2f64813) - jathanism
+
+- - -
+
 ## v0.8.1 - 2026-10-27
 #### Bug Fixes
 - (**release**) only publish releases from the default branch - (93d987e) - jathanism

@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.8.1 - 2026-10-27
+#### Bug Fixes
+- (**release**) only publish releases from the default branch - (93d987e) - jathanism
+- (**release**) prevent stranded releases from mid-run merges to main - (4e03310) - jathanism
+
+- - -
+
 ## v0.8.0 - 2026-10-27
 #### Features
 - (**common-repo**) declare auto-merge for the ci.yaml stub - (29b21a4) - jathanism

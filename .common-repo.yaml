@@ -23,11 +23,14 @@
     GH_APP_OWNER: common-repo
 - include:
     - "src/**"
-# ci.yaml is a sensible-default stub. Re-include narrowly with
-# `if-exists: preserve` so consumers who maintain their own
-# .github/workflows/ci.yaml keep it across re-propagations.
-# Last-op-wins on the same path means this re-stamps ci.yaml's
-# tag from `overwrite` to `preserve` after the wide include above.
+# ci.yaml is a merge-composable sensible-default stub. Re-include it
+# narrowly with `if-exists: preserve` so a consumer's existing
+# .github/workflows/ci.yaml survives the sequential pass: last-op-wins
+# on the same path re-stamps ci.yaml's tag from `overwrite` to
+# `preserve` after the wide include above. The auto-merge declaration
+# below then merges the stub into that file at the residual stage, so
+# consumers get the stub's jobs layered in instead of having to declare
+# the merge on their repo: entry (or lose their workflow to the stub).
 - include:
     - "src/.github/workflows/ci.yaml"
   if-exists: preserve
@@ -35,6 +38,13 @@
     - "src/.github/workflows/release.yaml"
 - rename:
     - "^src/(.*)$": "$1"
+# Deferred merge for the ci.yaml stub. Declared after `rename`, which
+# produces the root-level path the declaration references. Because it
+# is deferred, the merge intent carries to every inheritor, including
+# through intermediate upstream repos, with no consumer-side with: ops.
+- yaml:
+    auto-merge: .github/workflows/ci.yaml
+    array_mode: append_unique
 - repo:
     url: https://github.com/common-repo/conventional-commits
     ref: v1.4.1

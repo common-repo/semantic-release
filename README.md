@@ -17,6 +17,7 @@ Files distributed from `src/`:
 | File | Purpose |
 |---|---|
 | `cog.toml` | Cocogitto config (tag prefix `v`, ignore merge commits) |
+| `.github/workflows/ci.yaml` | Reusable fallback CI (lint / validate / test) — merge-composable stub |
 | `.github/workflows/release.yaml` | Release-on-merge workflow (cocogitto bump + tag + GitHub Release) |
 
 PR commit-lint is not shipped here — this template depends on
@@ -50,7 +51,8 @@ cr apply   # write
 ### Prerequisites in the consumer repo
 
 - A **reusable CI workflow at `.github/workflows/ci.yaml`** (the release
-  workflow calls it as a prerequisite).
+  workflow calls it as a prerequisite). The merge-composable stub
+  satisfies this automatically — see [Calling CI](#calling-ci).
 - A **GitHub App** installed on the target repo with `contents: write`
   permissions. Expose its App ID and private key as `secrets.*` entries
   (values go in `template-vars` above).
@@ -236,8 +238,21 @@ images, SDK publish, etc.) — each is independent.
 ### Calling CI
 
 The release workflow calls `./.github/workflows/ci.yaml` as a reusable
-workflow (`workflow_call`). Consumers must either provide one at that path
-or remove the `ci` job dependency via common-repo merge.
+workflow (`workflow_call`). The repo ships a merge-composable stub at
+that path, so both starting points work without consumer-side merge
+ops:
+
+- **No `ci.yaml` of your own** — the stub lands as-is and satisfies the
+  release workflow's `ci` prerequisite.
+- **Your own `ci.yaml`** — the stub's jobs (`lint`, `validate`, `test`)
+  merge into it on propagation (`append_unique`, so re-propagation is
+  idempotent), along with the `workflow_call` trigger the release
+  workflow needs. Map keys merge recursively; your jobs are kept. Note
+  the merge is declared upstream and unconditional: scalar top-level
+  keys the stub defines (`name`, `permissions`) overwrite yours with a
+  warning, and `exclude:` does not suppress the merge. Consumers who
+  need their workflow untouched should pin a ref that predates the
+  declaration or fork.
 
 ### Excluding files
 

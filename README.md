@@ -261,6 +261,32 @@ ops:
   need their workflow untouched should pin a ref that predates the
   declaration or fork.
 
+### Release hooks
+
+Three optional hooks let a consumer customize the release job without
+forking `release.yaml`. A repo that uses none of them releases exactly
+as before.
+
+- **`version` dispatch input** — a manual run with `version` set (for
+  example `1.2.3`, no leading `v`) releases that version with
+  `cog bump --version` instead of planning one. Use it to force a
+  release or to recover from a version collision.
+- **`script/release-setup`** — if executable, it runs after checkout
+  and before planning. Install the runtimes and package managers that
+  `script/plan-release` and the `pre_bump_hooks` need, and configure
+  registry auth. Export to later steps through `$GITHUB_PATH` and
+  `$GITHUB_ENV`.
+- **`script/plan-release`** — if executable, it replaces the built-in
+  plan. It must write `is-release` (and, when `true`, `version` and
+  `tag`) to `$GITHUB_OUTPUT`. `EVENT_NAME` holds `github.event_name`,
+  so it can, for example, pause major bumps outside manual runs. It
+  gates the release; the version it writes must be the one
+  `cog bump --auto` computes.
+
+Secrets and permissions the hooks need (for example `packages: write`
+and a `NODE_AUTH_TOKEN` for `npm publish`) go in through a `yaml:`
+merge on `jobs.release` in the consumer's `.common-repo.yaml`.
+
 ### Excluding files
 
 If you only want a subset of what this repo ships:

@@ -2,6 +2,13 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: >-
+          Explicit version to release, e.g. 1.2.3 (no leading v). Leave blank
+          to plan the version from conventional commits.
+        required: false
+        type: string
   push:
     branches:
       - main
@@ -83,6 +90,21 @@ jobs:
           git config user.name  "${APP_SLUG}[bot]"
           git config user.email "${user_id}+${APP_SLUG}[bot]@users.noreply.github.com"
 
+      # Optional consumer hook: an executable script/release-setup prepares
+      # the toolchain the plan and the pre_bump_hooks need (runtimes, package
+      # managers, registry auth). It can export to later steps through
+      # $GITHUB_PATH and $GITHUB_ENV.
+      - name: Prepare release environment
+        run: |
+          set -euo pipefail
+          if [[ -x script/release-setup ]]; then
+            script/release-setup
+          fi
+
+      # A dispatched `version` input wins. Otherwise an executable
+      # script/plan-release decides: it must write is-release, and when true
+      # version and tag, to $GITHUB_OUTPUT, and the version must be the one
+      # `cog bump --auto` computes (it gates, it does not pick versions).
       # Dry-run to decide whether this push warrants a release. cog exits 0 in
       # both "bump planned" and "no bump needed" cases, distinguished by whether
       # stdout contains a semver. A non-zero exit means a real error (dirty
@@ -90,7 +112,30 @@ jobs:
       # subsequent release steps are gated on `is-release == 'true'`.
       - name: Plan next version
         id: plan
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EXPLICIT_VERSION: ${{ inputs.version }}
         run: |
+          semver='^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'
+          if [[ -n "${EXPLICIT_VERSION:-}" ]]; then
+            if [[ ! "${EXPLICIT_VERSION}" =~ ${semver} ]]; then
+              echo "::error::version input must be a semver without a leading v, got '${EXPLICIT_VERSION}'"
+              exit 1
+            fi
+            echo "Explicit version requested: v${EXPLICIT_VERSION}"
+            {
+              echo "is-release=true"
+              echo "version=${EXPLICIT_VERSION}"
+              echo "tag=v${EXPLICIT_VERSION}"
+            } >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          if [[ -x script/plan-release ]]; then
+            script/plan-release
+            exit 0
+          fi
+
           set +e
           plan_output="$(cog bump --auto --dry-run 2>&1)"
           plan_exit=$?
@@ -131,7 +176,14 @@ jobs:
         if: steps.plan.outputs.is-release == 'true'
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: cog bump --auto
+          EXPLICIT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [[ -n "${EXPLICIT_VERSION:-}" ]]; then
+            cog bump --version "${EXPLICIT_VERSION}"
+          else
+            cog bump --auto
+          fi
 
       # The bump commit can carry formatting that the pre-commit hooks would
       # change: cog's initial CHANGELOG.md has no final newline, and

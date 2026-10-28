@@ -393,9 +393,22 @@ jobs:
           # `gh release create` failed mid-upload.
           local_tag="$(git rev-parse "${TAG}" 2>/dev/null || true)"
           remote_tag="$(git ls-remote origin "refs/tags/${TAG}" | head -n1 | cut -f1)"
+          # The tag goes only once no release names it: deleting it under a
+          # release that failed to delete would orphan that release.
+          release_kept=false
           if [ -n "${local_tag}" ] && [ "${local_tag}" = "${remote_tag}" ]; then
-            gh release delete "${TAG}" --yes || true
-            git push origin ":refs/tags/${TAG}" || true
+            if view_err="$(gh release view "${TAG}" --json tagName 2>&1 >/dev/null)"; then
+              if ! gh release delete "${TAG}" --yes; then
+                echo "::error::Could not delete release ${TAG}; leaving the release and its tag in place."
+                release_kept=true
+              fi
+            elif [[ "${view_err}" != *"release not found"* ]]; then
+              echo "::error::Could not look up release ${TAG} (${view_err}); leaving the release and its tag in place."
+              release_kept=true
+            fi
+            if [ "${release_kept}" = false ]; then
+              git push origin ":refs/tags/${TAG}" || true
+            fi
           else
             echo "::notice::origin does not carry this run's ${TAG}; leaving the remote tag and release untouched."
           fi
@@ -413,4 +426,8 @@ jobs:
             elif [ -z "${MAJOR_PREV}" ]; then
               git push origin ":refs/tags/${MAJOR}" || true
             fi
+          fi
+          if [ "${release_kept}" = true ]; then
+            echo "::error::Delete release ${TAG} and then tag ${TAG} by hand before re-running."
+            exit 1
           fi

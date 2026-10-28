@@ -124,8 +124,14 @@ jobs:
               echo "::error::version input must be a semver without a leading v, got '${EXPLICIT_VERSION}'"
               exit 1
             fi
-            if git ls-remote --exit-code --tags origin "refs/tags/v${EXPLICIT_VERSION}" >/dev/null; then
+            # --exit-code: 0 = tag exists, 2 = no such tag, anything else = lookup failed.
+            tag_check=0
+            git ls-remote --exit-code --tags origin "refs/tags/v${EXPLICIT_VERSION}" >/dev/null || tag_check=$?
+            if [[ ${tag_check} -eq 0 ]]; then
               echo "::error::v${EXPLICIT_VERSION} is already released; dispatch a version that has no tag yet"
+              exit 1
+            elif [[ ${tag_check} -ne 2 ]]; then
+              echo "::error::could not check origin for v${EXPLICIT_VERSION} (git ls-remote exited ${tag_check})"
               exit 1
             fi
             echo "Explicit version requested: v${EXPLICIT_VERSION}"

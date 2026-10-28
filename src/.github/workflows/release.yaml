@@ -101,10 +101,12 @@ jobs:
             script/release-setup
           fi
 
-      # A dispatched `version` input wins. Otherwise an executable
-      # script/plan-release decides: it must write is-release, and when true
-      # version and tag, to $GITHUB_OUTPUT, and the version must be the one
-      # `cog bump --auto` computes (it gates, it does not pick versions).
+      # A dispatched `version` input wins; it must not already be tagged,
+      # since rollback would take the existing tag for this run's. Otherwise
+      # an executable script/plan-release decides: it must write is-release,
+      # and when true version and tag, to $GITHUB_OUTPUT, and the version
+      # must be the one `cog bump --auto` computes (it gates, it does not
+      # pick versions).
       # Dry-run to decide whether this push warrants a release. cog exits 0 in
       # both "bump planned" and "no bump needed" cases, distinguished by whether
       # stdout contains a semver. A non-zero exit means a real error (dirty
@@ -120,6 +122,10 @@ jobs:
           if [[ -n "${EXPLICIT_VERSION:-}" ]]; then
             if [[ ! "${EXPLICIT_VERSION}" =~ ${semver} ]]; then
               echo "::error::version input must be a semver without a leading v, got '${EXPLICIT_VERSION}'"
+              exit 1
+            fi
+            if git ls-remote --exit-code --tags origin "refs/tags/v${EXPLICIT_VERSION}" >/dev/null; then
+              echo "::error::v${EXPLICIT_VERSION} is already released; dispatch a version that has no tag yet"
               exit 1
             fi
             echo "Explicit version requested: v${EXPLICIT_VERSION}"

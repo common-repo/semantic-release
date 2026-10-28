@@ -281,11 +281,12 @@ jobs:
           set -euo pipefail
           major="v${VERSION%%.*}"
           prev="$(git ls-remote origin "refs/tags/${major}" | head -n1 | cut -f1)"
+          git tag -f "${major}"
           {
             echo "name=${major}"
             echo "prev=${prev}"
+            echo "new=$(git rev-parse "${major}")"
           } >> "${GITHUB_OUTPUT}"
-          git tag -f "${major}"
           git push origin "refs/tags/${major}" --force
 
       # Final step: push the bump commit to the default branch. Anything that
@@ -312,6 +313,7 @@ jobs:
           TAG: ${{ steps.plan.outputs.tag }}
           MAJOR: ${{ steps.major.outputs.name }}
           MAJOR_PREV: ${{ steps.major.outputs.prev }}
+          MAJOR_NEW: ${{ steps.major.outputs.new }}
         run: |
           set -euo pipefail
           # HEAD is the bump commit once `cog bump` ran. A reported-failure
@@ -339,10 +341,18 @@ jobs:
           else
             echo "::notice::origin does not carry this run's ${TAG}; leaving the remote tag and release untouched."
           fi
-          if [ -n "${MAJOR}" ]; then
-            if [ -n "${MAJOR_PREV}" ]; then
+          # The major tag is only this run's to undo while the remote still
+          # points at the SHA this run pushed: if the update never landed, or
+          # another actor moved the tag afterwards, the remote differs and is
+          # left alone. A prev equal to new means the tag already pointed
+          # here before the run, so restoring would be a no-op push.
+          if [ -n "${MAJOR}" ] && [ -n "${MAJOR_NEW}" ]; then
+            remote_major="$(git ls-remote origin "refs/tags/${MAJOR}" | head -n1 | cut -f1)"
+            if [ "${remote_major}" != "${MAJOR_NEW}" ]; then
+              echo "::notice::origin ${MAJOR} does not point at this run's update; leaving the major tag untouched."
+            elif [ -n "${MAJOR_PREV}" ] && [ "${MAJOR_PREV}" != "${MAJOR_NEW}" ]; then
               git push origin --force "${MAJOR_PREV}:refs/tags/${MAJOR}"
-            else
+            elif [ -z "${MAJOR_PREV}" ]; then
               git push origin ":refs/tags/${MAJOR}" || true
             fi
           fi

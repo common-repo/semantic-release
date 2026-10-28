@@ -314,9 +314,15 @@ jobs:
           MAJOR_PREV: ${{ steps.major.outputs.prev }}
         run: |
           set -euo pipefail
-          remote_head="$(git ls-remote origin "refs/heads/${BRANCH}" | cut -f1)"
-          if [ -n "${remote_head}" ] && [ "${remote_head}" = "$(git rev-parse HEAD)" ]; then
-            echo "::notice::The bump commit is already on origin/${BRANCH}; the release is complete, not rolling back."
+          # HEAD is the bump commit once `cog bump` ran. A reported-failure
+          # push may still have landed, and a merge can advance the branch
+          # past the bump commit before this rollback runs, so decide by
+          # reachability, not tip equality. A fetch failure aborts the
+          # rollback: failing closed leaves artifacts in place rather than
+          # deleting a live release.
+          git fetch origin "${BRANCH}"
+          if git merge-base --is-ancestor HEAD "origin/${BRANCH}"; then
+            echo "::notice::The bump commit is on origin/${BRANCH}; the release is complete, not rolling back."
             exit 0
           fi
           # The remote tag can only match this run's local tag if this run

@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.9.2 - 2026-10-28
+#### Bug Fixes
+- (**release**) keep the tag when the rollback cannot delete its release - (4d29378) - Jathan McCollum
+- (**release**) accept only X.Y.Z for a dispatched version - (5603f76) - Jathan McCollum
+- (**release**) fail the version check when the tag lookup fails - (62550f4) - Jathan McCollum
+
+- - -
+
 ## v0.9.1 - 2026-10-28
 #### Bug Fixes
 - (**release**) reject a dispatched version that is already tagged - (fcdcf89) - Jathan McCollum

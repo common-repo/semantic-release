@@ -268,7 +268,7 @@ forking `release.yaml`. A repo that uses none of them releases exactly
 as before.
 
 - **`version` dispatch input** — a manual run with `version` set (for
-  example `1.2.3`, no leading `v`) releases that version with
+  example `1.2.3`: no leading `v`, no prerelease suffix) releases that version with
   `cog bump --version` instead of planning one. Use it to force a
   release or to recover from a version collision.
 - **`script/release-setup`** — if executable, it runs after checkout

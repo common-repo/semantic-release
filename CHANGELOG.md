@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.8.3 - 2026-10-28
+#### Bug Fixes
+- (**release**) restore the major tag only while it points at this run's push - (8573517) - jathanism
+- (**release**) detect a landed bump commit by reachability - (c83904b) - jathanism
+
+- - -
+
 ## v0.8.2 - 2026-10-27
 #### Bug Fixes
 - (**release**) roll back only the artifacts this run published - (2f64813) - jathanism

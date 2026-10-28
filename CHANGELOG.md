@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.9.1 - 2026-10-28
+#### Bug Fixes
+- (**release**) reject a dispatched version that is already tagged - (fcdcf89) - Jathan McCollum
+
+- - -
+
 ## v0.9.0 - 2026-10-28
 #### Features
 - (**release**) add version input and script/release-setup and plan-release hooks - (5ea05b9) - Jathan McCollum

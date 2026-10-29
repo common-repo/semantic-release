@@ -135,6 +135,18 @@ jobs:
               echo "::error::could not check origin for v${EXPLICIT_VERSION} (git ls-remote exited ${tag_check})"
               exit 1
             fi
+            # A version below the latest release would move the major tag
+            # backward onto it, downgrading consumers that follow vN.
+            if ! remote_tags="$(git ls-remote --tags --refs origin 'refs/tags/v*')"; then
+              echo "::error::could not list release tags on origin"
+              exit 1
+            fi
+            latest="$(printf '%s\n' "${remote_tags}" | sed -n 's|.*refs/tags/v||p' \
+              | { grep -E "${semver}" || true; } | sort -V | tail -n 1)"
+            if [[ -n "${latest}" ]] && [[ "$(printf '%s\n%s\n' "${latest}" "${EXPLICIT_VERSION}" | sort -V | tail -n 1)" != "${EXPLICIT_VERSION}" ]]; then
+              echo "::error::v${EXPLICIT_VERSION} is lower than the latest release v${latest}; dispatch a higher version"
+              exit 1
+            fi
             echo "Explicit version requested: v${EXPLICIT_VERSION}"
             {
               echo "is-release=true"

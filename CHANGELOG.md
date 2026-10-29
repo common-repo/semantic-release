@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.9.3 - 2026-10-29
+#### Bug Fixes
+- (**release**) reject a dispatched version below the latest release - (6d28429) - Jathan McCollum
+
+- - -
+
 ## v0.9.2 - 2026-10-28
 #### Bug Fixes
 - (**release**) keep the tag when the rollback cannot delete its release - (4d29378) - Jathan McCollum

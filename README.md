@@ -270,7 +270,8 @@ as before.
 - **`version` dispatch input** — a manual run with `version` set (for
   example `1.2.3`: no leading `v`, no prerelease suffix) releases that version with
   `cog bump --version` instead of planning one. Use it to force a
-  release or to recover from a version collision.
+  release or to recover from a version collision. It must be higher than the
+  latest `vX.Y.Z` tag, so the major tag never moves backward.
 - **`script/release-setup`** — if executable, it runs after checkout
   and before planning. Install the runtimes and package managers that
   `script/plan-release` and the `pre_bump_hooks` need, and configure

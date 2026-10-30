@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.9.4 - 2026-10-30
+#### Bug Fixes
+- (**ci**) run common-repo diff in the Validate job - (7b3d97b) - jathanism
+
+- - -
+
 ## v0.9.3 - 2026-10-29
 #### Bug Fixes
 - (**release**) reject a dispatched version below the latest release - (6d28429) - Jathan McCollum

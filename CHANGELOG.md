@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.9.5 - 2026-11-03
+#### Bug Fixes
+- (**ci**) self-heal unsuperseded dangling release tags - (b8804aa) - jathanism
+
+- - -
+
 ## v0.9.4 - 2026-10-30
 #### Bug Fixes
 - (**ci**) run common-repo diff in the Validate job - (7b3d97b) - jathanism

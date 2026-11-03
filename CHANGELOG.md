@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.10.2 - 2026-11-03
+#### Bug Fixes
+- (**release**) preserve explicit-version manual recovery - (5fe3976) - Jathan McCollum
+- (**release**) fail closed on unreconciled version tags - (31369fe) - Jathan McCollum
+
+- - -
+
 ## v0.10.1 - 2026-11-03
 #### Bug Fixes
 - (**deps**) consume released conventional-commits and regenerate - (4a04d61) - Jathan McCollum

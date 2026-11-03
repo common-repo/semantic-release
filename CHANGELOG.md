@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.10.0 - 2026-11-03
+#### Features
+- (**common-repo**) update upstream to v2.3.0 - (8daf682) - jathanism
+
+- - -
+
 ## v0.9.5 - 2026-11-03
 #### Bug Fixes
 - (**ci**) self-heal unsuperseded dangling release tags - (b8804aa) - jathanism

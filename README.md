@@ -338,6 +338,14 @@ Open an issue if you want this as a first-class toggle.
   tag and release and restores `vN` before exiting. If a rollback itself
   fails, delete the tag and release by hand and re-run; the `concurrency:
   release` group plus the job's short window make the whole scenario rare.
+- **Unreconciled release tags**. Before planning a release, the workflow
+  stops if a version tag is off `main` and is not superseded by a newer
+  reachable tag. This includes an interrupted first release. An off-branch
+  tag may be intentional, so the workflow never deletes it or its GitHub
+  release automatically. Inspect its target and published release: reconcile
+  an intentional release with `main`, or have an authorized maintainer remove
+  an orphaned release and tag before rerunning. Older superseded tags remain
+  untouched and do not block the release.
 - **GitHub App token scope**. The App needs `contents: write` on the
   target repo. If you publish to additional places (registries, other
   repos), grant those via the workflow's own secrets or additional tokens.

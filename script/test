@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+"""Exercise the exported release guard without calling GitHub or changing remote tags."""
+
+import os
+import re
+import subprocess
+import tempfile
+import textwrap
+from pathlib import Path
+
+
+def guard(path):
+    content = path.read_text()
+    match = re.search(
+        r"(?m)^      - name: Check for unreconciled release tags\n"
+        r"        run: \|\n((?:          [^\n]*\n|\n)+)",
+        content,
+    )
+    assert match, f"missing release guard in {path}"
+    return textwrap.dedent(match.group(1))
+
+
+source = guard(Path("src/.github/workflows/release.yaml"))
+assert source == guard(Path(".github/workflows/release.yaml"))
+assert not any(cmd in source for cmd in ("gh release delete", "git push", "git tag -d"))
+
+fixture_env = {
+    **os.environ,
+    "GIT_AUTHOR_NAME": "Release fixture",
+    "GIT_AUTHOR_EMAIL": "fixture@example.invalid",
+    "GIT_COMMITTER_NAME": "Release fixture",
+    "GIT_COMMITTER_EMAIL": "fixture@example.invalid",
+}
+
+for name, off_main, on_main, should_stop in (
+    ("no version tags", None, None, False),
+    ("first release interrupted", "v0.1.0", None, True),
+    ("newer off-main release", "v0.2.0", "v0.1.0", True),
+    ("older off-main release superseded", "v0.2.0", "v0.3.0", False),
+    ("all tags on main", None, "v0.3.0", False),
+):
+    with tempfile.TemporaryDirectory() as temp:
+        def git(*args):
+            return subprocess.run(
+                ("git", *args), cwd=temp, env=fixture_env,
+                check=True, capture_output=True, text=True,
+            ).stdout.strip()
+
+        git("init", "-q", "-b", "main")
+        git("commit", "--allow-empty", "-qm", "initial")
+        if off_main:
+            git("switch", "-qc", "release-branch")
+            git("commit", "--allow-empty", "-qm", "release commit")
+            git("tag", off_main)
+            git("switch", "-q", "main")
+        if on_main:
+            git("tag", on_main)
+
+        tags_before = git("show-ref", "--tags") if off_main or on_main else ""
+        result = subprocess.run(
+            ("bash", "-e", "-c", source), cwd=temp,
+            env=fixture_env, capture_output=True, text=True,
+        )
+        assert (result.returncode != 0) == should_stop, (name, result.stdout, result.stderr)
+        assert tags_before == (git("show-ref", "--tags") if off_main or on_main else ""), name
+        if should_stop:
+            assert off_main in result.stdout and "Nothing was deleted" in result.stdout, name
+        print(f"{name}: {'blocked safely' if should_stop else 'passed'}")

@@ -104,8 +104,10 @@ jobs:
       # An off-main version tag might be an interrupted release or an
       # intentional release from another branch. Never delete either its tag
       # or published assets automatically. Older tags superseded by the
-      # newest reachable release do not affect the next version.
+      # newest reachable release do not affect the next version. A manually
+      # supplied version is checked against all remote tags in the plan step.
       - name: Check for unreconciled release tags
+        if: inputs.version == ''
         run: |
           set -euo pipefail
           latest="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --merged HEAD | sed 's/^v//' | sort -V | tail -n 1)"
@@ -118,7 +120,8 @@ jobs:
               echo "::notice::${tag} is off main but superseded by reachable v${latest}; keeping it"
               continue
             fi
-            echo "::error::${tag} is not reachable from main and is not superseded. Inspect its tag target and GitHub release before planning another release. If intentional, reconcile it with main; if orphaned, an authorized maintainer must remove the release and tag before retrying. Nothing was deleted."
+            echo "::error::${tag} is not reachable from main and is not superseded. Automatic version planning stopped. Nothing was deleted."
+            echo "::error::Inspect its tag target and GitHub release. After maintainer review, dispatch a new version higher than all remote tags, or have an authorized maintainer remove an orphaned release and tag before retrying."
             exit 1
           done
 

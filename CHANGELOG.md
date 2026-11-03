@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.10.1 - 2026-11-03
+#### Bug Fixes
+- (**deps**) consume released conventional-commits and regenerate - (4a04d61) - Jathan McCollum
+- (**deps**) update workflow action pins and regenerate - (4aba57c) - Jathan McCollum
+
+- - -
+
 ## v0.10.0 - 2026-11-03
 #### Features
 - (**common-repo**) update upstream to v2.3.0 - (8daf682) - jathanism

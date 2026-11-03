@@ -29,13 +29,20 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
+      # Pinned: a change in the apply output of a newer common-repo would
+      # make `common-repo diff` fail in every consumer at once.
       - uses: common-repo/setup-common-repo@887d2b31e6678fb650d1b1b6fb6097afa5528310 # v1
+        with:
+          version: v0.38.2
 
       - name: Validate configuration
         run: common-repo validate
 
-      - name: Dry-run apply
-        run: common-repo apply --dry-run
+      # `common-repo diff` exits 1 when a managed file differs from the
+      # result of `common-repo apply`. `common-repo apply --dry-run` exits 0
+      # in that case, so it cannot be the check.
+      - name: Check managed files
+        run: common-repo diff
 
   test:
     name: Test

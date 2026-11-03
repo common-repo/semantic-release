@@ -2,7 +2,7 @@
 - self:
     - repo:
         url: https://github.com/common-repo/upstream
-        ref: v2.1.5
+        ref: v2.3.0
     - include:
         - "src/**"
     - template:

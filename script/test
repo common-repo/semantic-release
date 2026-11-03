@@ -13,6 +13,7 @@ def guard(path):
     content = path.read_text()
     match = re.search(
         r"(?m)^      - name: Check for unreconciled release tags\n"
+        r"        if: inputs.version == ''\n"
         r"        run: \|\n((?:          [^\n]*\n|\n)+)",
         content,
     )

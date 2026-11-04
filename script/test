@@ -25,6 +25,11 @@ source = guard(Path("src/.github/workflows/release.yaml"))
 assert source == guard(Path(".github/workflows/release.yaml"))
 assert not any(cmd in source for cmd in ("gh release delete", "git push", "git tag -d"))
 
+# A run cancelled after the tag push must roll back too, or the guard above
+# stops every later automatic release on the stranded tag.
+for workflow in (Path("src/.github/workflows/release.yaml"), Path(".github/workflows/release.yaml")):
+    assert "if: (failure() || cancelled()) && steps.plan.outputs.is-release == 'true'" in workflow.read_text(), workflow
+
 fixture_env = {
     **os.environ,
     "GIT_AUTHOR_NAME": "Release fixture",

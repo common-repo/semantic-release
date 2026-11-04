@@ -106,12 +106,18 @@ jobs:
       # or published assets automatically. Older tags superseded by the
       # newest reachable release do not affect the next version. A manually
       # supplied version is checked against all remote tags in the plan step.
+      # Prerelease and other suffixed tags are not release tags and are ignored.
       - name: Check for unreconciled release tags
         if: inputs.version == ''
         run: |
           set -euo pipefail
-          latest="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --merged HEAD | sed 's/^v//' | sort -V | tail -n 1)"
-          for tag in $(git tag --list 'v[0-9]*.[0-9]*.[0-9]*'); do
+          # Plain vX.Y.Z only: this workflow cuts no other tags, and sort -V
+          # ranks a prerelease such as v1.2.0-rc.1 above v1.2.0.
+          release_tags() {
+            git tag --list 'v[0-9]*.[0-9]*.[0-9]*' "$@" | { grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true; }
+          }
+          latest="$(release_tags --merged HEAD | sed 's/^v//' | sort -V | tail -n 1)"
+          for tag in $(release_tags); do
             if git merge-base --is-ancestor "${tag}^{commit}" HEAD; then
               continue
             fi

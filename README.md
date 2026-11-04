@@ -347,7 +347,9 @@ Open an issue if you want this as a first-class toggle.
   tags to retain the old release, or have an authorized maintainer remove an
   orphaned release and tag before rerunning. The existing dispatch validation
   rejects reused or lower versions. Older superseded tags remain untouched
-  and do not block the release.
+  and do not block the release. Only plain `vX.Y.Z` tags count: prerelease
+  and other suffixed tags (`v1.2.0-rc.1`) neither block a release nor
+  supersede an off-`main` tag.
 - **GitHub App token scope**. The App needs `contents: write` on the
   target repo. If you publish to additional places (registries, other
   repos), grant those via the workflow's own secrets or additional tokens.

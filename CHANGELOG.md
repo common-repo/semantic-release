@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.11.0 - 2026-11-04
+#### Features
+- (**ci**) merge the ci.yaml stub steps by name - (aeebe69) - Devin AI, *Devin AI*
+
+- - -
+
 ## v0.10.3 - 2026-11-04
 #### Bug Fixes
 - (**release**) ignore prerelease tags in the unreconciled-tag guard - (9191542) - Devin AI, *Devin AI*

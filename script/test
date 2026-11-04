@@ -39,6 +39,9 @@ for name, off_main, on_main, should_stop in (
     ("newer off-main release", "v0.2.0", "v0.1.0", True),
     ("older off-main release superseded", "v0.2.0", "v0.3.0", False),
     ("all tags on main", None, "v0.3.0", False),
+    ("off-main prerelease of a released version", "v0.3.0-rc.1", "v0.3.0", False),
+    ("off-main prerelease of a future version", "v0.4.0-rc.1", "v0.3.0", False),
+    ("reachable prerelease does not supersede an off-main release", "v0.2.0", "v0.3.0-rc.1", True),
 ):
     with tempfile.TemporaryDirectory() as temp:
         def git(*args):

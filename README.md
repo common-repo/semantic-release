@@ -252,9 +252,15 @@ ops:
 - **No `ci.yaml` of your own** — the stub lands as-is and satisfies the
   release workflow's `ci` prerequisite.
 - **Your own `ci.yaml`** — the stub's jobs (`lint`, `validate`, `test`)
-  merge into it on propagation (`append_unique`, so re-propagation is
-  idempotent), along with the `workflow_call` trigger the release
-  workflow needs. Map keys merge recursively; your jobs are kept. Note
+  merge into it on propagation, along with the `workflow_call` trigger
+  the release workflow needs. Map keys merge recursively; your jobs are
+  kept. Steps merge by `name` (`merge_by_key`): a stub step updates your
+  step of the same name in place (`Checkout`, `Run prek`,
+  `Install common-repo`, `Validate configuration`, `Check managed files`,
+  `Run tests`), and fields you add to it, such as `with.fetch-depth`,
+  survive with common-repo 0.38.3 or later. Give your copies of the stub's
+  steps those names; an unnamed copy no longer matches and the stub's step
+  is added next to it. Note
   the merge is declared upstream and unconditional: scalar top-level
   keys the stub defines (`name`, `permissions`) overwrite yours with a
   warning, and `exclude:` does not suppress the merge. Consumers who

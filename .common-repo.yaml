@@ -51,4 +51,4 @@
     key: name
 - repo:
     url: https://github.com/common-repo/conventional-commits
-    ref: v1.4.2
+    ref: v1.5.0

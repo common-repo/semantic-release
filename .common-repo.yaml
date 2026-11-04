@@ -42,9 +42,13 @@
 # produces the root-level path the declaration references. Because it
 # is deferred, the merge intent carries to every inheritor, including
 # through intermediate upstream repos, with no consumer-side with: ops.
+# Steps are keyed by `name`, so a bumped pin replaces the consumer's step
+# of the same name instead of appending a second copy; unnamed items still
+# dedupe only when identical.
 - yaml:
     auto-merge: .github/workflows/ci.yaml
-    array_mode: append_unique
+    array_mode: merge_by_key
+    key: name
 - repo:
     url: https://github.com/common-repo/conventional-commits
     ref: v1.4.2

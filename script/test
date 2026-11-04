@@ -29,6 +29,9 @@ assert not any(cmd in source for cmd in ("gh release delete", "git push", "git t
 # stops every later automatic release on the stranded tag.
 for workflow in (Path("src/.github/workflows/release.yaml"), Path(".github/workflows/release.yaml")):
     assert "if: (failure() || cancelled()) && steps.plan.outputs.is-release == 'true'" in workflow.read_text(), workflow
+    # The job gate must survive cancellation, or the job is cancelled before
+    # the rollback step is evaluated.
+    assert "if: always() && needs.ci.result == 'success' && github.ref == 'refs/heads/main'" in workflow.read_text(), workflow
 
 fixture_env = {
     **os.environ,

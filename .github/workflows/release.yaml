@@ -38,7 +38,12 @@ jobs:
   release:
     name: Release
     needs: ci
-    if: github.ref == 'refs/heads/main'
+    # A gate without a status function is an implicit success(), which
+    # GitHub re-evaluates to false on cancellation and cancels the whole job,
+    # so the rollback step below would never run. always() keeps the job
+    # alive on cancel; the publication steps' implicit success() then skips
+    # them and only the rollback runs.
+    if: always() && needs.ci.result == 'success' && github.ref == 'refs/heads/main'
     permissions:
       contents: write
     runs-on: ubuntu-latest

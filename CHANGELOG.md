@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.12.2 - 2026-11-04
+#### Bug Fixes
+- (**ci**) pin the Validate job to common-repo v0.38.4 - (e37097e) - Devin AI, *Devin AI*
+- (**release**) keep the release job alive on cancel so rollback runs - (849b4d1) - Devin AI, *Devin AI*
+
+- - -
+
 ## v0.12.1 - 2026-11-04
 #### Bug Fixes
 - (**release**) roll back when a run is cancelled after the tag push - (b9b6a07) - Devin AI, *Devin AI*

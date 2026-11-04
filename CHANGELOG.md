@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.10.3 - 2026-11-04
+#### Bug Fixes
+- (**release**) ignore prerelease tags in the unreconciled-tag guard - (9191542) - Devin AI, *Devin AI*
+
+- - -
+
 ## v0.10.2 - 2026-11-03
 #### Bug Fixes
 - (**release**) preserve explicit-version manual recovery - (5fe3976) - Jathan McCollum
